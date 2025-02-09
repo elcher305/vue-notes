@@ -121,3 +121,47 @@ new Vue({
             });
         }
     },
+    computed: {
+        // Выключение кнопки, когда достигнуто 5 карточек во втором стобце
+        isAddButtonDisabled() {
+            const isSecondColumnFull = this.columns[1].cards.length >= this.maxCardsInColumnTwo;
+            const hasOver50Percent = this.columns[0].cards.some(card => {
+                const completedCount = card.items.filter(item => item.completed).length;
+                return completedCount / card.items.length >= 0.5;
+            });
+            return isSecondColumnFull && hasOver50Percent;
+        }
+    },
+    template: `
+    <div id="app">
+    <div v-for="(column, columnIndex) in columns" :key="columnIndex" class="column">
+        <h2>{{ column.title }}</h2>
+        <form v-if="columnIndex === 0 && canAddCard(columnIndex)" @submit.prevent="addCard(columnIndex)">
+            <input class="form" type="text" v-model="newCardTitle" placeholder="Заголовок" required>
+            <input class="form" type="text" v-model="newCardItems[0]" placeholder="Пункт 1" required>
+            <input class="form" type="text" v-model="newCardItems[1]" placeholder="Пункт 2" required>
+            <input class="form" type="text" v-model="newCardItems[2]" placeholder="Пункт 3" required>
+            <input class="form" type="text" v-model="newCardItems[3]" placeholder="Пункт 4 (опционально)">
+            <input class="form" type="text" v-model="newCardItems[4]" placeholder="Пункт 5 (опционально)">
+            <button type="submit" class="but" :disabled="isAddButtonDisabled">Добавить</button>
+        </form>
+        <div v-for="(card, cardIndex) in column.cards" :key="cardIndex" class="note" :class="{ locked: card.locked }">
+            <p class="title">{{ card.title }}</p>
+            <ul>
+                <li v-for="(item, index) in card.items" :key="index" class="anti-dots">
+                    <input
+                        type="checkbox"
+                        :checked="item.completed"
+                        @change="toggleItem(columnIndex, cardIndex, index)"
+                        :disabled="card.locked"
+                    />
+                    {{ item.text }}
+                </li>
+            </ul>
+            <p v-if="card.completedDate">Дата окончания: {{ card.completedDate }}</p>
+            <p v-if="card.reasonForMove">Причина перемещения: {{ card.reasonForMove }}</p>
+        </div>
+    </div>
+</div>
+    `
+});
