@@ -6,4 +6,29 @@
 form {
     display: flex;
     flex-direction: column;
+} 
+
+.form {
+    height: 30px;
+    width: 200px;
+    font-size: 13px;
+    border-radius: 6px;
+    border: 1px solid gray;
+    padding-left: 8px;
+    margin-top: 20px;
+}
+
+.button-additions:hover {
+    background-color: #24b906;
+}
+
+.button-additions {
+    margin-top: 20px;
+    height: 35px;
+    width: 120px;
+    font-size: 14px;
+    background-color: #2bd109;
+    border: none;
+    border-radius: 7px;
+    color: white;
 }
