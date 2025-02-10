@@ -18,11 +18,11 @@ form {
     margin-top: 20px;
 }
 
-.button-additions:hover {
+.but:hover {
     background-color: #24b906;
 }
 
-.button-additions {
+.but {
     margin-top: 20px;
     height: 35px;
     width: 120px;
@@ -31,4 +31,17 @@ form {
     border: none;
     border-radius: 7px;
     color: white;
+}
+
+.anti-dots {
+    border: none;
+    text-align: left;
+}
+
+.note {
+    border: 1px solid gray;
+    margin-top: 10px;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 16px;
 }
