@@ -18,11 +18,11 @@ form {
     margin-top: 15px;
 }
 
-.but:hover {
+.button:hover {
     background-color: #24b906;
 }
 
-.but {
+.button {
     margin-top: 20px;
     height: 35px;
     width: 120px;
