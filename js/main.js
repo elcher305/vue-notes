@@ -24,9 +24,9 @@ new Vue({
     data() {
         return {
             columns: [
-                { title: '3', cards: [], locked: false },
-                { title: '5', cards: [] },
-                { title: 'без ограничений', cards: [] }
+                { title: 'Карточка 1 (max 3)', cards: [], locked: false },
+                { title: 'Карточка 2 (max 5)', cards: [] },
+                { title: 'Без ограничений', cards: [] }
             ],
             newCardTitle: '',
             newCardItems: ['', '', '', '', ''],
@@ -96,17 +96,6 @@ new Vue({
             this.columns[toColumn].cards.push(card);
             this.checkLockState();
         },
-        askForReasonAndMove(fromColumn, toColumn, cardIndex) {
-            const reason = prompt('Укажите причину перемещения карточки обратно в первую колонку:');
-            if (reason === null || reason.trim() === '') {
-                alert('Причина перемещения не указана. Карточка не будет перемещена.');
-                return;
-            }
-
-            const card = this.columns[fromColumn].cards[cardIndex];
-            card.reasonForMove = reason; // Сохраняем причину
-            this.moveCard(fromColumn, toColumn, cardIndex);
-        },
         checkLockState() {
             const isSecondColumnFull = this.columns[1].cards.length >= this.maxCardsInColumnTwo;
             const hasOver50Percent = this.columns[0].cards.some(card => {
@@ -122,7 +111,7 @@ new Vue({
         }
     },
     computed: {
-        // Выключение кнопки, когда достигнуто 5 карточек во втором стобце
+      
         isAddButtonDisabled() {
             const isSecondColumnFull = this.columns[1].cards.length >= this.maxCardsInColumnTwo;
             const hasOver50Percent = this.columns[0].cards.some(card => {
@@ -143,7 +132,7 @@ new Vue({
             <input class="form" type="text" v-model="newCardItems[2]" placeholder="Пункт 3" required>
             <input class="form" type="text" v-model="newCardItems[3]" placeholder="Пункт 4 (опционально)">
             <input class="form" type="text" v-model="newCardItems[4]" placeholder="Пункт 5 (опционально)">
-            <button type="submit" class="but" :disabled="isAddButtonDisabled">Добавить</button>
+            <button type="submit" class="button" :disabled="isAddButtonDisabled">Добавить</button>
         </form>
         <div v-for="(card, cardIndex) in column.cards" :key="cardIndex" class="note" :class="{ locked: card.locked }">
             <p class="title">{{ card.title }}</p>
@@ -159,7 +148,6 @@ new Vue({
                 </li>
             </ul>
             <p v-if="card.completedDate">Дата окончания: {{ card.completedDate }}</p>
-            <p v-if="card.reasonForMove">Причина перемещения: {{ card.reasonForMove }}</p>
         </div>
     </div>
 </div>
