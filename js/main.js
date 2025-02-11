@@ -143,8 +143,6 @@ new Vue({
                     required
                 />
             </div>
-    
-            <!-- Пункты заметки -->
             <div v-for="(item, index) in newCardItems" :key="index" class="form-group">
                 <label :for="'item-' + index">Пункт {{ index + 1 }}:</label>
                 <input 
@@ -155,8 +153,6 @@ new Vue({
                     :required="index < 3" 
                 />
             </div>
-    
-            <!-- Кнопка добавления -->
             <button 
                 type="submit" 
                 class="button" 
