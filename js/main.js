@@ -96,7 +96,6 @@ new Vue({
             this.columns[toColumn].cards.push(card);
             this.checkLockState();
         },
-        
         checkLockState() {
             const isSecondColumnFull = this.columns[1].cards.length >= this.maxCardsInColumnTwo;
             const hasOver50Percent = this.columns[0].cards.some(card => {
@@ -112,10 +111,7 @@ new Vue({
         }
     },
     computed: {
-        isValidForm() {
-            const items = this.newCardItems.filter(item => item.trim() !== '');
-            return items.length >= 3 && items.length <= 5;
-        },
+      
         isAddButtonDisabled() {
             const isSecondColumnFull = this.columns[1].cards.length >= this.maxCardsInColumnTwo;
             const hasOver50Percent = this.columns[0].cards.some(card => {
@@ -129,39 +125,32 @@ new Vue({
     <div id="app">
     <div v-for="(column, columnIndex) in columns" :key="columnIndex" class="column">
         <h2>{{ column.title }}</h2>
-        <div v-if="columnIndex === 0 && canAddCard(columnIndex)" class="card-form">
-        <h3>Создание новой заметки</h3>
-        <form @submit.prevent="addCard(columnIndex)">
-            <!-- Заголовок заметки -->
-            <div class="form-group">
-                <label for="title">Заголовок:</label>
-                <input 
-                    id="title" 
-                    type="text" 
-                    v-model="newCardTitle" 
-                    placeholder="Введите заголовок" 
-                    required
-                />
-            </div>
-            <div v-for="(item, index) in newCardItems" :key="index" class="form-group">
-                <label :for="'item-' + index">Пункт {{ index + 1 }}:</label>
-                <input 
-                    :id="'item-' + index" 
-                    type="text" 
-                    v-model="newCardItems[index]" 
-                    :placeholder="'Пункт ' + (index + 1)"
-                    :required="index < 3" 
-                />
-            </div>
-            <button 
-                type="submit" 
-                class="button" 
-                :disabled="isAddButtonDisabled || !isValidForm"
-            >
-                Добавить заметку
-            </button>
+        <form v-if="columnIndex === 0 && canAddCard(columnIndex)" @submit.prevent="addCard(columnIndex)">
+            <input class="form" type="text" v-model="newCardTitle" placeholder="Заголовок" required>
+            <input class="form" type="text" v-model="newCardItems[0]" placeholder="Пункт 1" required>
+            <input class="form" type="text" v-model="newCardItems[1]" placeholder="Пункт 2" required>
+            <input class="form" type="text" v-model="newCardItems[2]" placeholder="Пункт 3" required>
+            <input class="form" type="text" v-model="newCardItems[3]" placeholder="Пункт 4 (опционально)">
+            <input class="form" type="text" v-model="newCardItems[4]" placeholder="Пункт 5 (опционально)">
+            <button type="submit" class="button" :disabled="isAddButtonDisabled">Добавить</button>
         </form>
+        <div v-for="(card, cardIndex) in column.cards" :key="cardIndex" class="note" :class="{ locked: card.locked }">
+            <p class="title">{{ card.title }}</p>
+            <ul>
+                <li v-for="(item, index) in card.items" :key="index" class="anti-dots">
+                    <input
+                        type="checkbox"
+                        :checked="item.completed"
+                        @change="toggleItem(columnIndex, cardIndex, index)"
+                        :disabled="card.locked"
+                    />
+                    {{ item.text }}
+                </li>
+            </ul>
+            <p v-if="card.completedDate">Дата окончания: {{ card.completedDate }}</p>
+        </div>
     </div>
-    </div>
+</div>
     `
 });
+
