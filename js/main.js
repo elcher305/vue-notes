@@ -1,13 +1,18 @@
 Vue.component('note', {
     props: ['card', 'columnIndex'],
     template: `
-        <div class="note" :class="{locked: card.locked}">
+        <div class="note" :class="{ locked: card.locked }">
             <p class="title">{{ card.title }}</p>
             <ul>
-                <li v-for="(item, index) in card.cards" :key="index" class="anti-dots">
-                    <input type="checkbox" :checked="item.completed" @change="toggleItem(index)" :disabled="card.locked"/>
+                <li v-for="(item, index) in card.items" :key="index" class="anti-dots">
+                    <input 
+                        type="checkbox" 
+                        :checked="item.completed" 
+                        @change="toggleItem(index)" 
+                        :disabled="card.locked"
+                    />
                     {{ item.text }}
-                </li>    
+                </li>
             </ul>
             <p v-if="card.completedDate">Дата окончания: {{ card.completedDate }}</p>
         </div>
@@ -25,8 +30,8 @@ new Vue({
         return {
             columns: [
                 { title: 'Карточка 1 (max 3)', cards: [], locked: false },
-                { title: 'Карточка 2 (max 5)', cards: [] },
-                { title: 'Без ограничений', cards: [] }
+                { title: 'Карточка 2 (max 5)', cards: [], },
+                { title: 'без ограничений', cards: [] }
             ],
             newCardTitle: '',
             newCardItems: ['', '', '', '', ''],
@@ -77,49 +82,96 @@ new Vue({
             this.newCardItems = ['', '', '', '', ''];
             this.checkLockState();
         },
+        toggleItem(columnIndex, cardIndex, itemIndex) {
+            const card = this.columns[columnIndex].cards[cardIndex];
+            if (card.locked) return; 
+
+            // Инвертируем состояние выполнения пункта
+            card.items[itemIndex].completed = !card.items[itemIndex].completed;
+        
+            // Проверяем завершенность карточки
+            this.checkCardCompletion(columnIndex, cardIndex);
+        
+            // Проверяем, нужно ли вернуть карточку в первый столбец
+            this.checkIfCardShouldReturnToFirstColumn(columnIndex, cardIndex);
+        },
+        checkIfCardShouldReturnToFirstColumn(fromColumn, cardIndex) {
+            const card = this.columns[fromColumn].cards[cardIndex];
+            const completedCount = card.items.filter(item => item.completed).length;
+            const totalItems = card.items.length;
+        
+            // Если доля выполненных пунктов <= 50% и карточка не находится в первом столбце
+            if (fromColumn !== 0 && completedCount / totalItems <= 0.5) {
+                this.moveCard(fromColumn, 0, cardIndex); // Перемещаем карточку в первый столбец
+            }
+        },
         checkCardCompletion(columnIndex, cardIndex) {
             const card = this.columns[columnIndex].cards[cardIndex];
             const completedCount = card.items.filter(item => item.completed).length;
             const totalItems = card.items.length;
-
+            
+            if (completedCount === totalItems && columnIndex !== 2) {
+                this.moveCard(columnIndex, 2, cardIndex); // Перемещаем в третий столбец
+            } 
+            // Если карточка находится в первом столбце и больше 50% выполнено
+            else if (columnIndex === 0 && completedCount / totalItems > 0.5) {
+                this.moveCard(columnIndex, 1, cardIndex); // Перемещаем во второй столбец
+            }
+            
             if (columnIndex === 0 && completedCount / totalItems > 0.5) {
-                this.moveCard(columnIndex, 1, cardIndex);
-            } else if (columnIndex === 1 && completedCount / totalItems < 0.5) {
-                this.askForReasonAndMove(columnIndex, 0, cardIndex); // Запрашиваем причину
+                this.moveCard(columnIndex, 1, cardIndex); // Перемещаем в второй столбец
+            } else if (columnIndex === 1 && completedCount === totalItems) {
+                this.moveCard(columnIndex, 2, cardIndex); // Перемещаем в третий столбец
             } else if (columnIndex !== 2 && completedCount === totalItems) {
                 this.moveCard(columnIndex, 2, cardIndex);
             }
+        
+            // Проверяем состояние блокировки после изменения
+            this.checkLockState();
         },
         moveCard(fromColumn, toColumn, cardIndex) {
             const card = this.columns[fromColumn].cards.splice(cardIndex, 1)[0];
-            card.completedDate = toColumn === 2 ? new Date().toLocaleString() : null;
+        
+            // Сбрасываем дату завершения, если карточка возвращается в первый столбец
+            if (toColumn === 2) {
+                card.completedDate = new Date().toLocaleString(); // Дата завершения
+            } else {
+                card.completedDate = null; // Сброс даты завершения для других столбцов
+            }
+        
+            // Перемещаем карточку
             this.columns[toColumn].cards.push(card);
+        
+            // Проверяем состояние блокировки после перемещения
             this.checkLockState();
         },
         checkLockState() {
             const isSecondColumnFull = this.columns[1].cards.length >= this.maxCardsInColumnTwo;
             const hasOver50Percent = this.columns[0].cards.some(card => {
                 const completedCount = card.items.filter(item => item.completed).length;
-                return completedCount / card.items.length >= 0.5;
+                return completedCount / card.items.length > 0.5; // Более 50%
             });
-
+        
+            // Блокировка первой колонки
             this.columns[0].locked = isSecondColumnFull && hasOver50Percent;
-
+        
+            // Блокировка карточек в первой колонке
             this.columns[0].cards.forEach(card => {
                 card.locked = this.columns[0].locked;
             });
         }
     },
     computed: {
-      
         isAddButtonDisabled() {
             const isSecondColumnFull = this.columns[1].cards.length >= this.maxCardsInColumnTwo;
             const hasOver50Percent = this.columns[0].cards.some(card => {
                 const completedCount = card.items.filter(item => item.completed).length;
-                return completedCount / card.items.length >= 0.5;
+                return completedCount / card.items.length > 0.5;
             });
+    
             return isSecondColumnFull && hasOver50Percent;
         }
+
     },
     template: `
     <div id="app">
@@ -132,7 +184,7 @@ new Vue({
             <input class="form" type="text" v-model="newCardItems[2]" placeholder="Пункт 3" required>
             <input class="form" type="text" v-model="newCardItems[3]" placeholder="Пункт 4 (опционально)">
             <input class="form" type="text" v-model="newCardItems[4]" placeholder="Пункт 5 (опционально)">
-            <button type="submit" class="button" :disabled="isAddButtonDisabled">Добавить</button>
+            <button type="submit" class="but" :disabled="isAddButtonDisabled">Добавить</button>
         </form>
         <div v-for="(card, cardIndex) in column.cards" :key="cardIndex" class="note" :class="{ locked: card.locked }">
             <p class="title">{{ card.title }}</p>
@@ -153,4 +205,3 @@ new Vue({
 </div>
     `
 });
-
