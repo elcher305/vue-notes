@@ -238,19 +238,19 @@ new Vue({
                 <button type="submit" class="but" :disabled="isAddButtonDisabled">Добавить</button>
             </form>
             <div v-for="(card, cardIndex) in column.cards" :key="cardIndex" class="note" :class="{ locked: card.locked }">
-            <p class="title">{{ card.title }}</p>
-            <ul>
-                <li v-for="(item, index) in card.items" :key="index" class="anti-dots">
-                    <input
-                        type="checkbox"
-                        :checked="item.completed"
-                        @change="toggleItem(columnIndex, cardIndex, index)"
-                        :disabled="card.locked"
-                    />
-                    {{ item.text }}
-                </li>
-            </ul>
-            <p v-if="card.completedDate">Дата окончания: {{ card.completedDate }}</p>
+                <p class="title">{{ card.title }}</p>
+                <ul>
+                    <li v-for="(item, index) in card.items" :key="index" class="anti-dots">
+                        <input
+                            type="checkbox"
+                            :checked="item.completed"
+                            @change="toggleItem(columnIndex, cardIndex, index)"
+                            :disabled="card.locked"
+                        />
+                        {{ item.text }}
+                    </li>
+                </ul>
+                <p v-if="card.completedDate">Дата окончания: {{ card.completedDate }}</p>
         </div>
             <note 
                 v-for="(card, cardIndex) in column.cards" 
@@ -259,7 +259,6 @@ new Vue({
                 :column-index="columnIndex" 
                 @update-item="toggleItem"
             ></note>
-        </div>
     </div>
     `
 });
