@@ -18,11 +18,11 @@ form {
     margin-top: 15px;
 }
 
-.button:hover {
+.but:hover {
     background-color: #24b906;
 }
 
-.button {
+.but {
     margin-top: 20px;
     height: 35px;
     width: 120px;
@@ -45,3 +45,37 @@ form {
     text-align: center;
     font-size: 16px;
 }
+
+
+.item-text {
+    outline: none !important;
+}
+
+.button-additions {
+    border-radius: 5px;
+    color: white;
+    font-size: 14px;
+    background-color: rgb(62, 181, 245);
+    border: none;
+    width: 120px;
+    height: 33px;
+}
+
+.forms-additions {
+    margin-top: 10px;
+    margin-left: -120px;
+    border: none;
+}
+
+.changes-history {
+    margin-top: 10px;
+    padding: 8px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .changes-history ul {
+    list-style-type: disc;
+    padding-left: 20px;
+  }
